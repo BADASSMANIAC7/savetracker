@@ -32,11 +32,11 @@
       --danger: #ef5350;
       --text: #e0f7fa;
       --text-light: #90a4ae;
-      --background: #121212;
-      --card-bg: rgba(33, 33, 33, 0.7);
+      --background: #333;
+      --card-bg: rgba(33, 34, 35, 0.6);
       --card-border: rgba(66, 66, 66, 0.3);
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-      --neumorphic-shadow: 6px 6px 18px rgba(0, 0, 0, 0.5), -6px -6px 18px rgba(66, 66, 66, 0.3);
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      --neumorphic-shadow: 6px 6px 18px rgba(0, 0, 0, 0.5), -6px -6px 15px rgba(66, 66, 66, 0.3);
     }
 
     /* Reset */
@@ -280,72 +280,72 @@
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       overflow: hidden;
+    }
 
-      & .entries-header {
-        background: linear-gradient(90deg, var(--primary), #039be5);
-        color: white;
-        padding: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+    .entries-list .entries-header {
+      background: linear-gradient(90deg, var(--primary), #039be5);
+      color: white;
+      padding: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-      & .entries-header::after {
-        content: '▼';
-        font-size: 0.8rem;
-        transition: transform 0.3s;
-      }
+    .entries-list .entries-header::after {
+      content: '▼';
+      font-size: 0.8rem;
+      transition: transform 0.3s;
+    }
 
-      & .entries-header.collapsed::after {
-        transform: rotate(180deg);
-      }
+    .entries-list .entries-header.collapsed::after {
+      transform: rotate(180deg);
+    }
 
-      & .entries-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-      }
+    .entries-list .entries-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
 
-      & .entries-content.show {
-        max-height: 1000px;
-      }
+    .entries-list .entries-content.show {
+      max-height: 1000px;
+    }
 
-      & .entry {
-        display: flex;
-        flex-direction: column;
-        padding: 0.8rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        background: var(--card-bg);
-        transform: translateX(0);
-        transition: transform 0.3s ease;
-      }
+    .entries-list .entry {
+      display: flex;
+      flex-direction: column;
+      padding: 0.8rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      background: var(--card-bg);
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
 
-      & .entry.swipe-left {
-        transform: translateX(-100px);
-      }
+    .entries-list .entry.swipe-left {
+      transform: translateX(-100px);
+    }
 
-      & .entry-main {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+    .entries-list .entry-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-      & .entry-details {
-        max-height: 0;
-        overflow: hidden;
-        font-size: 0.85rem;
-        color: var(--text-light);
-        transition: max-height 0.3s ease;
-      }
+    .entries-list .entry-details {
+      max-height: 0;
+      overflow: hidden;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      transition: max-height 0.3s ease;
+    }
 
-      & .entry-details.show {
-        max-height: 100px;
-        margin-top: 0.5rem;
-      }
+    .entries-list .entry-details.show {
+      max-height: 100px;
+      margin-top: 0.5rem;
     }
 
     button.delete-btn {
@@ -367,83 +367,83 @@
     .goals {
       display: grid;
       gap: calc(var(--spacing-unit) * 0.8);
+    }
 
-      & .goal {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border);
-        border-radius: var(--border-radius);
-        padding: calc(var(--spacing-unit) * 0.8);
-        box-shadow: var(--shadow);
-        animation: slideIn 0.6s ease-out;
-        scroll-snap-align: start;
+    .goals .goal {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      padding: calc(var(--spacing-unit) * 0.8);
+      box-shadow: var(--shadow);
+      animation: slideIn 0.6s ease-out;
+      scroll-snap-align: start;
+    }
 
-        & h3 {
-          font-size: clamp(1rem, 2.5vw, 1.15rem);
-          font-weight: 600;
-          color: var(--text);
-          margin-bottom: 0.6rem;
-        }
+    .goals .goal h3 {
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
 
-        & .progress-bar {
-          background: rgba(0, 0, 0, 0.15);
-          height: 20px;
-          border-radius: 10px;
-          overflow: hidden;
+    .goals .goal .progress-bar {
+      background: rgba(0, 0, 0, 0.15);
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-          & .progress-bar-fill {
-            height: 100%;
-            width: 0;
-            background: var(--secondary);
-            border-radius: 10px 0 0 10px;
-            transition: width 1.5s ease-in-out;
-            position: relative;
-            overflow: hidden;
+    .goals .goal .progress-bar .progress-bar-fill {
+      height: 100%;
+      width: 0;
+      background: var(--secondary);
+      border-radius: 10px 0 0 10px;
+      transition: width 1.5s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
 
-            &::after {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.2) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.2) 50%,
-                rgba(255, 255, 255, 0.2) 75%,
-                transparent 75%,
-                transparent
-              );
-              background-size: 20px 20px;
-              animation: moveStripes 1.5s linear infinite;
-            }
-          }
+    .goals .goal .progress-bar .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+      );
+      background-size: 20px 20px;
+      animation: moveStripes 1.5s linear infinite;
+    }
 
-          & .progress-bar-fill.milestone-25 { background: #f39c12; }
-          & .progress-bar-fill.milestone-50 { background: #e67e22; }
-          & .progress-bar-fill.milestone-75 { background: #d35400; }
-          & .progress-bar-fill.milestone-100 { background: var(--secondary); }
-        }
+    .goals .goal .progress-bar .progress-bar-fill.milestone-25 { background: #f39c12; }
+    .goals .goal .progress-bar .progress-bar-fill.milestone-50 { background: #e67e22; }
+    .goals .goal .progress-bar .progress-bar-fill.milestone-75 { background: #d35400; }
+    .goals .goal .progress-bar .progress-bar-fill.milestone-100 { background: var(--secondary); }
 
-        & .progress-text {
-          margin-top: 0.5rem;
-          font-weight: 500;
-          color: var(--text);
-          font-size: 0.9rem;
-        }
+    .goals .goal .progress-text {
+      margin-top: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
 
-        & .goal-chart-container {
-          max-width: 250px;
-          margin: 0.8rem auto;
-          padding: 0.6rem;
-          background: var(--card-bg);
-          border-radius: 8px;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-      }
+    .goals .goal .goal-chart-container {
+      max-width: 250px;
+      margin: 0.8rem auto;
+      padding: 0.6rem;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     @keyframes moveStripes {
@@ -458,17 +458,17 @@
       gap: calc(var(--spacing-unit) * 0.8);
       margin: var(--spacing-unit) auto;
       max-width: 1200px;
+    }
 
-      & .chart-container,
-      & .targets-container {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow);
-        padding: calc(var(--spacing-unit) * 0.8);
-        animation: fadeIn 0.8s ease-out;
-      }
+    .charts-targets .chart-container,
+    .charts-targets .targets-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: calc(var(--spacing-unit) * 0.8);
+      animation: fadeIn 0.8s ease-out;
     }
 
     .targets-container {
@@ -476,37 +476,44 @@
       gap: calc(var(--spacing-unit) * 0.5);
       position: sticky;
       top: 0;
+    }
 
-      & h3 {
-        font-size: clamp(1rem, 2.5vw, 1.15rem);
-        font-weight: 600;
-        color: var(--text);
-        text-align: center;
-      }
+    .targets-container h3 {
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
 
-      & .target {
-        padding: 0.8rem;
-        border-radius: 8px;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-        font-size: 0.9rem;
-        box-shadow: var(--neumorphic-shadow);
+    .targets-container .target {
+      padding: 0.8rem;
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      font-size: 0.9rem;
+      box-shadow: var(--neumorphic-shadow);
+    }
 
-        & h4 {
-          font-size: 1rem;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-        }
+    .targets-container .target h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
 
-        & .status-met {
-          color: var(--secondary);
-          font-weight: 600;
-        }
+    .targets-container .target .status-met {
+      color: var(--secondary);
+      font-weight: 600;
+    }
 
-        & .status-unmet {
-          color: var(--danger);
-          font-weight: 600;
-        }
-      }
+    .targets-container .target .status-unmet {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .targets-container .target .target-deadline {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 0.3rem;
+      font-weight: 500;
     }
 
     /* Notification */
@@ -580,92 +587,102 @@
         min-height: 400px;
         margin: 0 auto;
         max-width: 95vw;
-
-        & input,
-        & select {
-          padding: 1.2rem;
-          font-size: var(--font-size-base);
-          line-height: 1.6;
-          min-height: 52px;
-        }
-
-        & label {
-          font-size: 0.9rem;
-          top: 1.2rem;
-          left: 1.2rem;
-        }
-
-        & input:focus + label,
-        & input:not(:placeholder-shown) + label,
-        & select:focus + label,
-        & select:not([value=""]) + label {
-          top: -1rem;
-          font-size: 0.85rem;
-        }
-
-        & button {
-          padding: 1.2rem;
-          font-size: var(--font-size-base);
-          min-height: 52px;
-        }
-
-        & .form-error {
-          font-size: 0.95rem;
-          padding: 1rem;
-        }
       }
 
-      .entries-list {
-        & .entry {
-          padding: 0.6rem;
-        }
+      form#entry-form input,
+      form#entry-form select {
+        padding: 1.2rem;
+        font-size: var(--font-size-base);
+        line-height: 1.6;
+        min-height: 52px;
+      }
 
-        & .entry-main {
-          font-size: 0.9rem;
-        }
+      form#entry-form label {
+        font-size: 0.9rem;
+        top: 1.2rem;
+        left: 1.2rem;
+      }
 
-        & .entry-details {
-          font-size: 0.8rem;
-        }
+      form#entry-form input:focus + label,
+      form#entry-form input:not(:placeholder-shown) + label,
+      form#entry-form select:focus + label,
+      form#entry-form select:not([value=""]) + label {
+        top: -1rem;
+        font-size: 0.85rem;
+      }
+
+      form#entry-form button {
+        padding: 1.2rem;
+        font-size: var(--font-size-base);
+        min-height: 52px;
+      }
+
+      form#entry-form .form-error {
+        font-size: 0.95rem;
+        padding: 1rem;
+      }
+
+      .entries-list .entry {
+        padding: 0.6rem;
+      }
+
+      .entries-list .entry-main {
+        font-size: 0.9rem;
+      }
+
+      .entries-list .entry-details {
+        font-size: 0.8rem;
       }
 
       .goals {
         gap: calc(var(--spacing-unit) * 0.6);
+      }
 
-        & .goal {
-          padding: calc(var(--spacing-unit) * 0.6);
+      .goals .goal {
+        padding: calc(var(--spacing-unit) * 0.6);
+      }
 
-          & h3 {
-            font-size: 1rem;
-          }
+      .goals .goal h3 {
+        font-size: 1rem;
+      }
 
-          & .progress-text {
-            font-size: 0.85rem;
-          }
+      .goals .goal .progress-text {
+        font-size: 0.85rem;
+      }
 
-          & .goal-chart-container {
-            max-width: 90vw;
-            padding: 0.5rem;
-          }
-        }
+      .goals .goal .goal-chart-container {
+        max-width: 90vw;
+        padding: 0.5rem;
       }
 
       .charts-targets {
         grid-template-columns: 1fr;
         gap: calc(var(--spacing-unit) * 0.6);
+      }
 
-        & .chart-container,
-        & .targets-container {
-          padding: calc(var(--spacing-unit) * 0.6);
-        }
+      .charts-targets .chart-container,
+      .charts-targets .targets-container {
+        padding: calc(var(--spacing-unit) * 0.6);
+      }
 
-        & .chart-container canvas {
-          max-width: 90vw;
-        }
+      .charts-targets .chart-container canvas {
+        max-width: 90vw;
       }
 
       .targets-container {
         position: static;
+      }
+
+      .targets-container .target {
+        font-size: 0.85rem;
+      }
+
+      .targets-container .target h4 {
+        font-size: 0.95rem;
+      }
+
+      .targets-container .target .target-deadline {
+        font-size: 0.8rem;
       }
 
       .notification {
@@ -690,16 +707,16 @@
       form#entry-form {
         padding: calc(var(--spacing-unit) * 1.2);
         min-height: 360px;
+      }
 
-        & input,
-        & select {
-          padding: 1rem;
-          min-height: 48px;
-        }
+      form#entry-form input,
+      form#entry-form select {
+        padding: 1rem;
+        min-height: 48px;
+      }
 
-        & button {
-          padding: 1rem;
-        }
+      form#entry-form button {
+        padding: 1rem;
       }
     }
 
@@ -707,20 +724,20 @@
       form#entry-form {
         padding: calc(var(--spacing-unit) * 1);
         min-height: 340px;
+      }
 
-        & input,
-        & select {
-          padding: 0.9rem;
-          font-size: clamp(14px, 1.8vw, 16px);
-        }
+      form#entry-form input,
+      form#entry-form select {
+        padding: 0.9rem;
+        font-size: clamp(14px, 1.8vw, 16px);
+      }
 
-        & button {
-          padding: 0.9rem;
-        }
+      form#entry-form button {
+        padding: 0.9rem;
+      }
 
-        & .form-error {
-          font-size: 0.9rem;
-        }
+      form#entry-form .form-error {
+        font-size: 0.9rem;
       }
     }
 
@@ -990,6 +1007,7 @@
             <span class="${weeklyRemaining <= 0 ? 'status-met' : 'status-unmet'}">
               ${weeklyRemaining <= 0 ? 'Weekly target met!' : `Need $${weeklyRemaining.toFixed(2)} more`}
             </span>
+            <div class="target-deadline" aria-label="Goal deadline">Deadline: ${formatDate(goal.deadline)}</div>
           </div>
           <div>
             Monthly Target: $${targets.monthly.toFixed(2)}<br>
@@ -997,6 +1015,7 @@
             <span class="${monthlyRemaining <= 0 ? 'status-met' : 'status-unmet'}">
               ${monthlyRemaining <= 0 ? 'Monthly target met!' : `Need $${monthlyRemaining.toFixed(2)} more`}
             </span>
+            <div class="target-deadline" aria-label="Goal deadline">Deadline: ${formatDate(goal.deadline)}</div>
           </div>
         `;
         targetsList.appendChild(targetEl);
@@ -1319,7 +1338,7 @@
         return;
       }
       const today = new Date().setHours(0, 0, 0, 0);
-      const deadlineDate = new Date(deadline).setHours(0, 0, 0, 0);
+      const deadlineDate = new Date(deadline).getTime();
       if (deadlineDate < today) {
         showFormError('Deadline must be in the future.', 'goal-form');
         return;
@@ -1333,7 +1352,7 @@
     goalsContainer.addEventListener('click', e => {
       if (e.target.classList.contains('delete-btn')) {
         const id = e.target.dataset.id;
-        if (confirm('Are you sure you want to delete this goal and its associated savings?')) {
+        if (confirm('Are you sure you want to delete this goal and its associated entries?')) {
           deleteGoal(id);
         }
       }
