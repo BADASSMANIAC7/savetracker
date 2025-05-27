@@ -597,6 +597,7 @@
       form#entry-form select:focus + label,
       form#entry-form select:not([value=""]) + label {
         top: -1rem;
+        left: 0.8rem;
         font-size: 0.85rem;
       }
 
@@ -636,7 +637,7 @@
       }
 
       .goals .goal .progress-text {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
       }
 
       .goals .goal .goal-chart-container {
@@ -671,7 +672,7 @@
       }
 
       .targets-container .target .status-unmet .deadline-text {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         margin-left: 0.2rem;
       }
 
@@ -719,7 +720,7 @@
       form#entry-form input,
       form#entry-form select {
         padding: 0.9rem;
-        font-size: clamp(12px, 1.8vw, 14px);
+        font-size: clamp(12px, 1.8vw, 13px);
       }
 
       form#entry-form button {
@@ -744,17 +745,17 @@
   </style>
 </head>
 <body>
-  <button class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+  <button class="theme-toggle" aria-label="Toggle dark mode">🌸</button>
   <h1>Savings Tracker</h1>
   <div class="container">
-    <form id="entry-form" aria-labelledby="entry-form-title">
-      <h2 id="entry-form-title" style="display: none;">Add Savings Entry</h2>
+    <form id="entry-form" aria-labelledby="entry-form-label">
+      <h2 id="entry-form-label" style="display: none;">Add Savings Entry</h2>
       <div class="form-group">
         <input type="date" id="entry-date" aria-label="Entry date" required />
         <label for="entry-date">Date</label>
       </div>
       <div class="form-group">
-        <input type="number" id="entry-amount" min="0.01" step="0.01" placeholder=" " aria-label="Savings amount" required />
+        <input type="number" id="entry-amount" min="0.01" step="0.01" placeholder=" " aria-label="Amount" required />
         <label for="entry-amount">Amount</label>
       </div>
       <div class="form-group">
@@ -765,13 +766,13 @@
         <label for="entry-goal">Goal</label>
       </div>
       <div class="form-group">
-        <select id="entry-category" aria-label="Savings category" required>
+        <select id="entry-category" aria-label="Category" required>
           <option value="" disabled selected>Category</option>
-          <option>Emergency Fund</option>
-          <option>Vacation</option>
-          <option>Education</option>
-          <option>Retirement</option>
-          <option>Other</option>
+          <option value="Emergency Fund">Emergency Fund</option>
+          <option value="Vacation">Vacation</option>
+          <option value="Education">Education</option>
+          <option value="Retirement">Retirement</option>
+          <option value="Other">Other</option>
         </select>
         <label for="entry-category">Category</label>
       </div>
@@ -789,8 +790,8 @@
       </div>
     </div>
 
-    <form id="goal-form" aria-labelledby="goal-form-title">
-      <h2 id="goal-form-title" style="display: none;">Add Savings Goal</h2>
+    <form id="goal-form" aria-labelledby="goal-form-label">
+      <h2 id="goal-form-label" style="display: none;">Add Savings Goal</h2>
       <div class="form-group">
         <input type="text" id="goal-name" placeholder=" " aria-label="Goal name" required />
         <label for="goal-name">Goal Name</label>
@@ -840,68 +841,67 @@
     const goalSelect = document.getElementById('entry-goal');
     let charts = [];
 
-    function loadData() {
+    function loadData(key) {
       try {
-        const data = JSON.parse(localStorage.getItem('data'));
+        const data = JSON.parse(localStorage.getItem(key));
         return data && Array.isArray(data) ? data : [];
       } catch (e) {
-        console.error('Error loading data:', e);
+        console.error(`Error loading ${key}:`, e);
         return [];
       }
     }
 
-    let entries = loadData();
-    let goals = loadData();
+    let entries = loadData(STORAGE_KEYS.entries);
+    let goals = loadData(STORAGE_KEYS.goals);
 
-    const savedTheme = localStorage.getItem('theme');
-    document.documentElement.setAttribute('data-theme', savedTheme || 'light');
-    themeToggle.innerText = savedTheme' || '🌙';
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.innerText = savedTheme === 'dark' ? '☀️' : '🌸';
 
     themeToggle.addEventListener('click', () => {
-      const currentTheme = documentElement.getAttribute('data-theme') || 'light';
-      const newTheme = currentTheme == 'light' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', 'newTheme');
-      localStorage.setItem('theme', 'newTheme');
-      themeToggle.innerText = newTheme' === 'dark' ? ' ' : '🌙';
-      showNotification('Dark mode ${newTheme}!');
-      if ('vibrate' in navigation) navigator.vibrate(50);
-      updateChart();
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem(STORAGE_KEYS.theme, newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌸';
+      showNotification(`Switched to ${newTheme} mode`);
+      if ('vibrate' in navigator) navigator.vibrate(50);
+      updateCharts();
     });
 
     function saveData() {
-      localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
-      localStorage.setItem('goals', JSON.stringify(entries));
+      try {
+        localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+        localStorage.setItem(STORAGE_KEYS.goals, JSON.stringify(goals));
+      } catch (e) {
+        console.error('Error saving data:', e);
+        showNotification('Failed to save data.');
+      }
     }
 
     function formatDate(dateStr) {
       if (!dateStr) return 'Invalid Date';
       const d = new Date(dateStr);
-      return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
     function showNotification(message) {
       notificationEl.textContent = message;
       notificationEl.classList.add('show');
-      setTimeout(() => {
-        notificationEl.classList.remove('show');
-      }, 6000);
+      setTimeout(() => notificationEl.classList.remove('show'), 3000);
     }
 
     function showFormError(message, formId) {
-      const existingError = document.getElementById('id${formId}');
-      if (existingError) {
-        existingError.remove();
-      }
+      const existingError = document.querySelector(`#${formId} .form-error`);
+      if (existingError) existingError.remove();
       const errorEl = document.createElement('div');
-      errorEl.className = 'error-content';
+      errorEl.className = 'form-error';
       errorEl.setAttribute('role', 'alert');
-      errorEl.setAttribute('aria-describedby', 'id-${formId}');
-      errorEl.id = 'error-${formId}';
+      errorEl.setAttribute('aria-describedby', `${formId}-error`);
+      errorEl.id = `${formId}-error`;
       errorEl.textContent = message;
-      document.getElementById(formId)).prepend(errorEl);
-      setTimeout(() => {
-        errorEl.remove();
-      }, 4000);
+      document.getElementById(formId).prepend(errorEl);
+      setTimeout(() => errorEl.remove(), 4000);
       if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
     }
 
@@ -913,19 +913,7 @@
       start.setHours(0, 0, 0, 0);
       const end = new Date(start);
       end.setDate(start.getDate() + 6); // Sunday end
-      end.setHours(end.setHours(23, 59, 59, 999));
-      return { start, end };
-    }
-
-    function getMonthStartEnd(date) {
-      const d = new Date();
-      const start = new Date(d.getFullYear(), d.getMonth());
-      const start.setDate(1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(d.getFullYear(), d.getMonth());
- + 1);
-      end.setDate(0);
-      end.setHours(23,59,59,59,999);
+      end.setHours(23, 59, 59, 999);
       return { start, end };
     }
 
@@ -933,7 +921,7 @@
       const now = new Date();
       const target = new Date(deadline);
       if (target < now) return 0;
-      const diffDays = Math.floor((target - today) / (1000 * 60 * 60 * 24));
+      const diffDays = Math.floor((target - now) / (1000 * 60 * 60 * 24));
       return Math.max(1, Math.ceil(diffDays / 7));
     }
 
@@ -941,35 +929,33 @@
       const now = new Date();
       const target = new Date(deadline);
       if (target < now) return 0;
-      const yearsDiff = target.getFullYear() - now.getFullYear());
-      const monthsDiff = target.getMonth() - now.getMonth());
-      return Math.max(1, ...yearsDiff * yearsDiff + 12 * monthsDiff));
+      const yearsDiff = target.getFullYear() - now.getFullYear();
+      const monthsDiff = target.getMonth() - now.getMonth();
+      return Math.max(1, yearsDiff * 12 + monthsDiff);
     }
 
     function calculateSavingsForGoal(goalId) {
-      return entries.filter(e => e.goalId === goalId)).reduce((sum, e) => {
-        return sum + e.amount;
-      }, 0);
+      return entries
+        .filter(e => e.goalId === goalId)
+        .reduce((sum, e) => sum + e.amount, 0);
     }
 
     function calculateWeeklySavings(goal) {
       const now = new Date();
-      const target = { start, end } = getWeekStartEnd(now);
-      return entries.filter(
-        e => e.goalId === goal.id && new Date(e.date) >= start && new Date(e.date) <= end)
-      ).reduce((sum, e) => {
-        return sum + e.amount;
-      }, 0);
+      const { start, end } = getWeekStartEnd(now);
+      return entries
+        .filter(e => e.goalId === goal.id && new Date(e.date) >= start && new Date(e.date) <= end)
+        .reduce((sum, e) => sum + e.amount, 0);
     }
 
     function calculateMonthlySavings(goal) {
-      const now = new Date();
-      const target = { start, end } = getMonthStartEnd(now);
-      return entries.filter(
-        e => e.goalId === goal.id && new Date(e.date) >= start && e.date(e.date) <= end)
-      ).reduce((sum, e => {
-        return sum + e.amount;
-      }, 0));
+      const creationDate = goal.createdAt ? new Date(goal.createdAt) : new Date('2025-05-26');
+      const start = new Date(creationDate);
+      const end = new Date(creationDate);
+      end.setDate(creationDate.getDate() + 30);
+      return entries
+        .filter(e => e.goalId === goal.id && new Date(e.date) >= start && new Date(e.date) <= end)
+        .reduce((sum, e) => sum + e.amount, 0);
     }
 
     function calculateTargets(goal) {
@@ -982,14 +968,14 @@
 
       return {
         weekly: remaining / weeksLeft,
-        monthlyTarget: remaining / monthsLeft
+        monthly: remaining / monthsLeft
       };
     }
 
     function updateSavingsTarget() {
       targetsList.innerHTML = '';
-      if (!targetsList.length) {
-        targetsList.innerHTML = '<p style="margin: var(--text-align: center;">No savings targets.</p>';
+      if (!goals.length) {
+        targetsList.innerHTML = '<p style="color: var(--text-light); text-align: center;">No savings targets.</p>';
         return;
       }
 
@@ -998,64 +984,67 @@
       const weekEndDate = formatDate(weekEnd);
 
       goals.forEach(goal => {
-        const targets = calculateTargets(goal);
-        const weeklySaved = calculateWeeklySavings(goal);
-        const monthlySaved = calculateMonthlySavings(goal);
-        const weeklyRemaining = targets.weekly - weeklySaved;
-        const monthlyRemaining = targets.monthly - monthlySaved;
+        try {
+          const targets = calculateTargets(goal);
+          const weeklySaved = calculateWeeklySavings(goal);
+          const monthlySaved = calculateMonthlySavings(goal);
+          const weeklyRemaining = targets.weekly - weeklySaved;
+          const monthlyRemaining = targets.monthly - monthlySaved;
 
-        // Calculate 30-day monthly deadline from creation date
-        const creationDate = goal.createdAt ? new Date(goal.createdAt) : new Date('2025-05-26'); // Fallback for existing goal
-        const monthlyDeadline = new Date(creationDate);
-        monthlyDeadline.setDate(creationDate.getDate() + 30);
-        const monthlyDeadlineDate = formatDate(monthlyDeadline);
+          // Calculate 30-day monthly deadline
+          const creationDate = goal.createdAt ? new Date(goal.createdAt) : new Date('2025-05-26');
+          const monthlyDeadline = new Date(creationDate);
+          monthlyDeadline.setDate(creationDate.getDate() + 30);
+          const monthlyDeadlineDate = formatDate(monthlyDeadline);
 
-        const targetEl = document.createElement('div');
-        targetEl.className = 'target';
-        targetEl.innerHTML = `
-          <h4>${goal.name}</h4>
-          <div>
-            Weekly Target: $${targets.weekly.toFixed(2)}<br>
-            Saved: $${weeklySaved.toFixed(2)}<br>
-            <span class="${weeklyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${weeklyRemaining <= 0 ? 'Weekly target met' : `Weekly target remaining: $${weeklyRemaining.toFixed(2)} by ${weekEndDate}`}">
-              ${weeklyRemaining <= 0 ? 'Weekly target met!' : `Need $${weeklyRemaining.toFixed(2)} more by <span class="deadline-text">${weekEndDate}</span>`}
-            </span>
-          </div>
-          <div>
-            Monthly Target: $${targets.monthly.toFixed(2)}<br>
-            Saved: $${monthlySaved.toFixed(2)}<br>
-            <span class="${monthlyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${monthlyRemaining <= 0 ? 'Monthly target met' : `Monthly target remaining: $${monthlyRemaining.toFixed(2)} by ${monthlyDeadlineDate}`}">
-              ${monthlyRemaining <= 0 ? 'Monthly target met!' : `Need $${monthlyRemaining.toFixed(2)} more by <span class="deadline-text">${monthlyDeadlineDate}</span>`}
-            </span>
-          </div>
-        `;
-        targetEl.appendChild(targetEl);
+          const targetEl = document.createElement('div');
+          targetEl.className = 'target';
+          targetEl.innerHTML = `
+            <h4>${goal.name}</h4>
+            <div>
+              Weekly Target: $${targets.weekly.toFixed(2)}<br>
+              Saved: $${weeklySaved.toFixed(2)}<br>
+              <span class="${weeklyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${weeklyRemaining <= 0 ? 'Weekly target met' : `Weekly target remaining: $${weeklyRemaining.toFixed(2)} by ${weekEndDate}`}">
+                ${weeklyRemaining <= 0 ? 'Weekly target met!' : `Need $${weeklyRemaining.toFixed(2)} more by <span class="deadline-text">${weekEndDate}</span>`}
+              </span>
+            </div>
+            <div>
+              Monthly Target: $${targets.monthly.toFixed(2)}<br>
+              Saved: $${monthlySaved.toFixed(2)}<br>
+              <span class="${monthlyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${monthlyRemaining <= 0 ? 'Monthly target met' : `Monthly target remaining: $${monthlyRemaining.toFixed(2)} by ${monthlyDeadlineDate}`}">
+                ${monthlyRemaining <= 0 ? 'Monthly target met!' : `Need $${monthlyRemaining.toFixed(2)} more by <span class="deadline-text">${monthlyDeadlineDate}</span>`}
+              </span>
+            </div>
+          `;
+          targetsList.appendChild(targetEl);
 
-        if (weeklyRemaining > 0) {
-          showNotification('Weekly savings target for ${goal.name}: $${weeklyRemaining.toFixed(2)} by ${weekEndDate}!');
-        }
-        if (monthlyRemaining > 0) {
-          showNotification('Monthly savings target for ${goal.name}: $${monthlyRemaining.toFixed(2)} by ${monthlyDeadlineDate}!');
+          if (weeklyRemaining > 0) {
+            showNotification(`Weekly savings target for ${goal.name}: $${weeklyRemaining.toFixed(2)} by ${weekEndDate}!`);
+          }
+          if (monthlyRemaining > 0) {
+            showNotification(`Monthly savings target for ${goal.name}: $${monthlyRemaining.toFixed(2)} by ${monthlyDeadlineDate}!`);
+          }
+        } catch (e) {
+          console.error(`Error processing goal ${goal.id}:`, e);
+          showNotification(`Error updating targets for ${goal.name}.`);
         }
       });
     }
 
-    function updateChart() {
-      charts.forEach(chart => {
-        chart.destroy());
-      });
+    function updateCharts() {
+      charts.forEach(chart => chart.destroy());
       charts = [];
 
       const generalCtx = document.getElementById('general-savings-chart').getContext('2d');
       const generalEntries = entries.filter(e => e.goalId === 'General');
-      charts.push(createChart(generalChart, generalEntries, 'General savings distribution by category'));
+      charts.push(createChart(generalCtx, generalEntries, 'General Savings by Category'));
 
       goals.forEach(goal => {
-        const canvas = document.getElementById('goal-chart-${goal.id}');
+        const canvas = document.getElementById(`goal-chart-${goal.id}`);
         if (canvas) {
           const ctx = canvas.getContext('2d');
-          const entries = entries.filter(e => e.goalId === goal.id);
-          charts.push(createChart(ctx, entries, '${goal.name} savings distribution by category'));
+          const goalEntries = entries.filter(e => e.goalId === goal.id);
+          charts.push(createChart(ctx, goalEntries, `${goal.name} Savings by Category`));
         }
       });
     }
@@ -1079,7 +1068,7 @@
           labels: labels.length ? labels : ['No Data'],
           datasets: [{
             data: data.length ? data : [1],
-            backgroundColor: data.length > 0 ? colors : ['#ccc'],
+            backgroundColor: data.length ? colors : ['#ccc'],
             borderColor: isDarkMode ? '#333' : '#fff',
             borderWidth: 2
           }]
@@ -1101,307 +1090,291 @@
               font: { size: 14 }
             }
           }
-        });
+        }
+      });
+    }
+
+    function updateGoalSelect() {
+      goalSelect.innerHTML = `
+        <option value="" disabled selected>Select Goal</option>
+        <option value="General">General</option>
+        ${goals.map(goal => `<option value="${goal.id}">${goal.name}</option>`).join('')}
+      `;
+    }
+
+    function renderEntries() {
+      entriesList.innerHTML = '';
+
+      if (!entries.length) {
+        entriesList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No savings added yet.</p>';
+        return;
       }
 
-      function updateGoalSelect() {
-        goalSelect.innerHTML = '';
-        goalSelect.innerHTML = `
-          <option value="">Select Goal</option>
-          <option value="General">General</option>
-          ${goals.map(goal => `<option value="${goal.id}">${goal.name}</option>`).join('')}
+      entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      entries.forEach(entry => {
+        const goalName = entry.goalId === 'General' ? 'General' : (goals.find(g => g.id === entry.goalId)?.name || 'Unknown');
+        const entryEl = document.createElement('div');
+        entryEl.className = 'entry';
+        entryEl.dataset.id = entry.id;
+        entryEl.innerHTML = `
+          <div class="entry-main">
+            <span>${formatDate(entry.date)} - $${entry.amount.toFixed(2)} (${goalName})</span>
+            <button class="delete-btn" data-id="${entry.id}" aria-label="Delete entry">Delete</button>
+          </div>
+          <div class="entry-details">
+            Category: ${entry.category}<br>
+            Notes: ${entry.notes || ''}
+          </div>
         `;
-      }
+        entriesList.appendChild(entryEl);
 
-      function renderEntries() {
-        entriesList.innerHTML = '';
-
-        if (!entries) {
-          entriesList.innerHTML = '<p style="text-align: center;">No savings added yet.</p>';
-          return;
-        }
-
-        entries.sort((a, b) => {
-          return new Date(b.date) - new Date(a.date);
+        let startX = 0;
+        entryEl.addEventListener('touchstart', e => {
+          startX = e.touches[0].clientX;
         });
 
-        entries.forEach(entry => {
-          const goalName = entry.goalId === 'General' ? 'General' : (goals.find(g => g.id === goalId)?.name || goalId);
-          const entryEl = document.createElement('div');
-          entry.className = 'entry';
-          entryEl.dataset.id = el.id;
-          entryEl.appendChild(entryEl);
-          entryEl.innerHTML = `
-            <div class="entry-details">
-              <span>${entryDate(entry.date)} - $${entry.amount.toFixed(2)} (${goalName})</span>
-              <button class="delete-btn" data-id="${entry.id}" aria-label="Delete">Delete</button>
-            </div>
-            <div class="entry-details">
-              Category: ${entry.category}<br />
-              Notes: ${entry.notes || '-'}</span>
-            </div>
-          `;
-          entriesList.appendChild(entryEl);
-
-          // Swipe to delete
-          let startX = 0;
-          entryEl.addEventListener('touchstart', e => {
-            startX = e.clientX;
-          });
-
-          entryEl.addEventListener('touchmove', e => {
-            const diffX = e.clientX - startX;
-            if (diffX < 0) {
-              entryEl.classList.add('move-event');
-            } else {
-              entriesEl.classList.remove('move-event');
-            }
-          });
-
-          entriesEl.addEventListener('touchend', () => {
-            if (entryEl.classList.contains('move-event')) {
-              if (confirm('Are you sure you want to delete this entry?')) {
-                deleteEntry(entry.id);
-              } else {
-                entryEl.classList.remove('move-event');
-              }
-            }
-          });
-
-          entriesEl.querySelector('.entry-details').addEventListener('click', e => {
-            if (!e.target.contains('delete-btn')) {
-              const details = entriesEl.querySelector('.entry-details');
-              details.classList.toggle('show');
-            }
-          });
-        });
-
-        updateChart();
-        updateSavingsTarget();
-      }
-
-      function addEntry(date, amount, goalId, category, notes) {
-        entries.push({
-          id: Date.now().toString(),
-          date: date,
-          amount: parseFloat(amount),
-          goalId: goalId,
-          category: category,
-          notes: notes
-        });
-        saveData();
-        renderEntries();
-        updateGoalsProgress();
-        showNotification('Saving added!');
-      }
-
-      function deleteEntry(id) {
-        entries = entries.filter(e => e.id !== id);
-        saveData();
-        renderEntries();
-        updateGoalsProgress();
-        updateSavingsTarget();
-        showNotification('Saving deleted!');
-      }
-
-      function renderGoals() {
-        goalsContainer.innerHTML = '';
-
-        if (!goals) {
-          goalsContainer.innerHTML = '<p style="text-align: center;">No goals yet. Add one above!</p>';
-          return;
-        }
-
-        goals.forEach(goal => {
-          const totalSaved = calculateSavingsForGoal(goal.id);
-          const progressPercentage = Math.min((totalSaved / goal.target) * 100, 0);
-
-          const goalEl = document.createElement('div');
-          goalEl.className = 'goal';
-          goalEl.innerHTML = `
-            <h3>${goal.name}</h3>
-            <div class="progress-bar" aria-label="Progress toward goal ${goal.name}">
-              <div class="progress-bar-fill" style="width: ${progressPercentage}%;" role="progress-bar" aria-valuenow="${progressPercentage}" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <div class="progress-text">$${totalSaved.toFixed(2)} saved of $${goal.target.toFixed(2)} (${progressPercentage.toFixed(1)}%)</div>
-            <div>Deadline: ${formatDate(goal.deadline)}</div>
-            <div class="goal-chart-container">
-              <canvas id="goal-chart-${goal.id}" aria-label="${goal.name} savings distribution by category"></canvas>
-            </div>
-            <button class="delete-btn" data-id="${goal.id}" aria-label="Delete goal">Delete Goal</button>
-          `;
-          goalsContainer.appendChild(goalEl);
-
-          const progressBarFill = goalEl.querySelector('.progress-bar-fill');
-          animateProgressBar(progressBarFill, progressPercentage, goal);
-        });
-
-        updateGoalSelect();
-        updateChart();
-        updateSavingsTarget();
-      }
-
-      function addGoal(name, target, deadline) {
-        goals.push({
-          id: Date.now().toString(),
-          name: name,
-          target: parseFloat(target),
-          deadline: deadline,
-          createdAt: new Date().toISOString() // Store creation date
-        });
-        saveData();
-        renderGoals();
-        showNotification('Goal added!');
-      }
-
-      function deleteGoal(id) {
-        entries = entries.filter(e => e.goalId !== id);
-        goals = goals.filter(g => g.id !== id);
-        saveData();
-        renderEntries();
-        renderGoals();
-        showNotification('Goal deleted!');
-      }
-
-      function animateProgressBar(bar, percent, goal) {
-        bar.style.width = '0%';
-        bar.className = 'progress-bar-fill';
-
-        let milestoneReached = null;
-        if (percent >= 100) {
-          bar.classList.add('milestone-100');
-          milestoneReached = '100% — Goal Achieved!';
-        } else if (percent >= 75) {
-          bar.classList.add('milestone-75');
-          milestoneReached = '75% Milestone reached!';
-        } else if (percent >= 50) {
-          bar.classList.add('milestone-50');
-          milestoneReached = '50% Milestone reached!';
-        } else if (percent >= 25) {
-          bar.classList.add('milestone-25');
-          milestoneReached = '25% Milestone reached!';
-        }
-
-        requestAnimationFrame(() => {
-          bar.style.width = percent + '%';
-        });
-
-        if (milestoneReached) {
-          const lastMilestoneKey = `milestone_${goal.id}`;
-          const lastMilestone = sessionStorage.getItem(lastMilestoneKey) || '0';
-          const milestones = { '0': 0, '25': 25, '30': 30, '5': 75, '1': 100 };
-          const milestoneLevel = Object.keys(milestoneKey).find(k => k.includes(milestoneReached)));
-
-          if (milestoneLevel[milestone] > milestones[lastMilestone]) {
-            sessionStorage.setItem(lastMilestoneKey, milestoneLevel);
-            showNotification(`${goal.name}: ${milestoneReached}`);
+        entryEl.addEventListener('touchmove', e => {
+          const diffX = e.touches[0].clientX - startX;
+          if (diffX < -50) {
+            entryEl.classList.add('swipe-left');
+          } else {
+            entryEl.classList.remove('swipe-left');
           }
-        }
-      }
+        });
 
-      function updateGoalsProgress() {
-        renderGoals();
-      }
-
-      entryForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const date = document.getElementById('date-entry').value;
-        const amount = document.getElementById('entry-amount').value;
-        const goalId = document.getElementById('entry-goal').value;
-        const category = document.getElementById('entry-category').value;
-        const notes = document.getElementById('entry-notes').value;
-
-        if (!date || !amount || !goalId || !category) {
-          showFormError('Please fill out all required fields!', 'entry-form');
-          entryFormError.append('Error filling out entry form');
-          return;
-        }
-        if (parseFloat(amount) <= 0) {
-          showFormError('Invalid amount entered.', 'entry-amount');
-          entryFormError.append('Amount must be positive');
-          return;
-        }
-
-        addEntry(date, amount, entries, category, notes);
-        entries();
-        showNotification('Entry added!');
-        if ('vibrate' in entry) {
-          navigator.vibrate(50);
-        }
-      });
-
-      entriesList.addEventListener('click', e => {
-        if (e.target.classList.contains('delete-btn-list')) {
-          const id = e.target.dataset.id;
-          if (confirm('Are you sure you want to delete this entry?')) {
-            deleteEntry(id);
+        entryEl.addEventListener('touchend', () => {
+          if (entryEl.classList.contains('swipe-left')) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+              deleteEntry(entry.id);
+            }
+            entryEl.classList.remove('swipe-left');
           }
-        }
-      });
+        });
 
-      entriesToggle.addEventListener('click', () => {
-        entriesContent.classList.toggle('show');
-        entriesToggle.classList.toggle('toggle');
-      });
-
-      goalForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = e.target.name.value;
-        const target = e.target.getElementById('goal-target').value;
-        const deadline = e.target.getElementById('goal-deadline').value;
-
-        if (!name || !target || !deadline) {
-          showFormError('Please fill out all goal fields!', 'goal-form');
-          goalFormError.append('Error filling out goal form');
-          return;
-        }
-
-        if (parseFloat(target)) <= 0 {
-          showFormError('Target amount must be positive.', 'goal-target');
-          targetFormError.append('Error with target amount');
-          return;
-        }
-
-        const today = new Date().setHours(0, 0,0,0);
-        const deadlineDate = new Date(deadline).setHours(0,0,0);
-        if (deadlineDate < today) {
-          showFormError('Deadline must be in the future.', 'goal-deadline');
-          deadlineDate.setError('Invalid deadline date');
-          return;
-        }
-
-        addGoal(name, target, deadline);
-        goal();
-        goalFormError.append('Goal added!');
-        if ('vibrate' in goal) {
-          navigator.vibrate(50);
-        }
-      });
-
-      goalsContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('delete-btn')) {
-          const id = e.target.dataset.id;
-          if (confirm('Are you sure you want to delete this goal?')) {
-            deleteGoal(id);
+        entryEl.querySelector('.entry-main').addEventListener('click', e => {
+          if (!e.target.classList.contains('delete-btn')) {
+            const details = entryEl.querySelector('.entry-details');
+            details.classList.toggle('show');
           }
-        }
-      });
-
-      // Button ripple effect
-      document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', e => {
-          const rect = button.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          button.style.setProperty('--x', `${x}px`);
-          button.style.setProperty('--y', `${y}px`);
         });
       });
 
+      updateCharts();
+      updateSavingsTarget();
+    }
+
+    function addEntry(date, amount, goalId, category, notes) {
+      entries.push({
+        id: Date.now().toString(),
+        date,
+        amount: parseFloat(amount),
+        goalId,
+        category,
+        notes
+      });
+      saveData();
+      renderEntries();
+      updateGoalsProgress();
+      showNotification('Entry added!');
+    }
+
+    function deleteEntry(id) {
+      entries = entries.filter(e => e.id !== id);
+      saveData();
+      renderEntries();
+      updateGoalsProgress();
+      updateSavingsTarget();
+      showNotification('Entry deleted!');
+    }
+
+    function renderGoals() {
+      goalsContainer.innerHTML = '';
+
+      if (!goals.length) {
+        goalsContainer.innerHTML = '<p style="color: var(--text-light); text-align: center;">No goals yet. Add one above!</p>';
+        return;
+      }
+
+      goals.forEach(goal => {
+        const totalSaved = calculateSavingsForGoal(goal.id);
+        const progressPercent = Math.min((totalSaved / goal.target) * 100, 100);
+
+        const goalEl = document.createElement('div');
+        goalEl.className = 'goal';
+        goalEl.innerHTML = `
+          <h3>${goal.name}</h3>
+          <div class="progress-bar" aria-label="Progress toward goal ${goal.name}">
+            <div class="progress-bar-fill" style="width: 0;" role="progressbar" aria-valuenow="${progressPercent}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="progress-text">$${totalSaved.toFixed(2)} saved of $${goal.target.toFixed(2)} (${progressPercent.toFixed(1)}%)</div>
+          <div>Deadline: ${formatDate(goal.deadline)}</div>
+          <div class="goal-chart-container">
+            <canvas id="goal-chart-${goal.id}" aria-label="Goal savings distribution by category for ${goal.name}"></canvas>
+          </div>
+          <button class="delete-btn" data-id="${goal.id}" aria-label="Delete goal">Delete Goal</button>
+        `;
+        goalsContainer.appendChild(goalEl);
+
+        const progressBar = goalEl.querySelector('.progress-bar-fill');
+        animateProgressBar(progressBar, progressPercent, goal);
+      });
+
+      updateGoalSelect();
+      updateCharts();
+      updateSavingsTarget();
+    }
+
+    function addGoal(name, target, deadline) {
+      goals.push({
+        id: Date.now().toString(),
+        name,
+        target: parseFloat(target),
+        deadline,
+        createdAt: new Date().toISOString()
+      });
+      saveData();
+      renderGoals();
+      showNotification('Goal added!');
+    }
+
+    function deleteGoal(id) {
+      entries = entries.filter(e => e.goalId !== id);
+      goals = goals.filter(g => g.id !== id);
+      saveData();
       renderEntries();
       renderGoals();
-      updateChart();
-      updateSavingsTarget();
-    </script>
-  </body>
+      showNotification('Goal deleted!');
+    }
+
+    function animateProgressBar(bar, percent, goal) {
+      bar.style.width = '0%';
+      bar.className = 'progress-bar-fill';
+
+      let milestoneReached = null;
+      if (percent >= 100) {
+        bar.classList.add('milestone-100');
+        milestoneReached = '100% — Goal Achieved!';
+      } else if (percent >= 75) {
+        bar.classList.add('milestone-75');
+        milestoneReached = '75% Milestone reached!';
+      } else if (percent >= 50) {
+        bar.classList.add('milestone-50');
+        milestoneReached = '50% Milestone reached!';
+      } else if (percent >= 25) {
+        bar.classList.add('milestone-25');
+        milestoneReached = '25% Milestone reached!';
+      }
+
+      requestAnimationFrame(() => {
+        bar.style.width = `${percent}%`;
+      });
+
+      if (milestoneReached) {
+        const lastMilestoneKey = `milestone_${goal.id}`;
+        const lastMilestone = sessionStorage.getItem(lastMilestoneKey) || '0';
+        const milestones = { '0': 0, '25': 25, '50': 50, '75': 75, '100': 100 };
+        const milestoneLevel = Object.keys(milestones).find(k => milestoneReached.includes(k));
+
+        if (milestoneLevel && milestones[milestoneLevel] > milestones[lastMilestone]) {
+          sessionStorage.setItem(lastMilestoneKey, milestoneLevel);
+          showNotification(`${goal.name}: ${milestoneReached}`);
+        }
+      }
+    }
+
+    function updateGoalsProgress() {
+      renderGoals();
+    }
+
+    entryForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const date = document.getElementById('entry-date').value;
+      const amount = document.getElementById('entry-amount').value;
+      const goalId = document.getElementById('entry-goal').value;
+      const category = document.getElementById('entry-category').value;
+      const notes = document.getElementById('entry-notes').value;
+
+      if (!date || !amount || !goalId || !category) {
+        showFormError('Please fill out all required fields!', 'entry-form');
+        return;
+      }
+
+      if (parseFloat(amount) <= 0) {
+        showFormError('Amount must be positive.', 'entry-form');
+        return;
+      }
+
+      addEntry(date, amount, goalId, category, notes);
+      entryForm.reset();
+      if ('vibrate' in navigator) navigator.vibrate(50);
+    });
+
+    entriesList.addEventListener('click', e => {
+      if (e.target.classList.contains('delete-btn')) {
+        const id = e.target.dataset.id;
+        if (confirm('Are you sure you want to delete this entry?')) {
+          deleteEntry(id);
+        }
+      }
+    });
+
+    entriesToggle.addEventListener('click', () => {
+      entriesContent.classList.toggle('show');
+      entriesToggle.classList.toggle('collapsed');
+    });
+
+    goalForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('goal-name').value;
+      const target = document.getElementById('goal-target').value;
+      const deadline = document.getElementById('goal-deadline').value;
+
+      if (!name || !target || !deadline) {
+        showFormError('Please fill out all goal fields!', 'goal-form');
+        return;
+      }
+
+      if (parseFloat(target) <= 0) {
+        showFormError('Target amount must be positive.', 'goal-form');
+        return;
+      }
+
+      const today = new Date().setHours(0, 0, 0, 0);
+      const deadlineDate = new Date(deadline).setHours(0, 0, 0, 0);
+      if (deadlineDate < today) {
+        showFormError('Deadline must be in the future.', 'goal-form');
+        return;
+      }
+
+      addGoal(name, target, deadline);
+      goalForm.reset();
+      if ('vibrate' in navigator) navigator.vibrate(50);
+    });
+
+    goalsContainer.addEventListener('click', e => {
+      if (e.target.classList.contains('delete-btn')) {
+        const id = e.target.dataset.id;
+        if (confirm('Are you sure you want to delete this goal?')) {
+          deleteGoal(id);
+        }
+      }
+    });
+
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', e => {
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        button.style.setProperty('--x', `${x}px`);
+        button.style.setProperty('--y', `${y}px`);
+      });
+    });
+
+    renderEntries();
+    renderGoals();
+    updateCharts();
+    updateSavingsTarget();
+  </script>
+</body>
 </html>
