@@ -20,7 +20,7 @@
       --shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
       --border-radius: 12px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --font-size-base: clamp(14px, 2vw, 16px);
+      --font-size-base: clamp(14px, 2vw, 15px);
       --spacing-unit: 1.5rem;
       --neumorphic-shadow: 6px 6px 18px rgba(0, 0, 0, 0.12), -6px -6px 18px rgba(255, 255, 255, 0.6);
     }
@@ -36,11 +36,11 @@
       --card-bg: rgba(33, 34, 35, 0.6);
       --card-border: rgba(66, 66, 66, 0.3);
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      --neumorphic-shadow: 6px 6px 18px rgba(0, 0, 0, 0.5), -6px -6px 15px rgba(66, 66, 66, 0.3);
+      --neumorphic-shadow: 6px 6px 18px rgba(0, 0,0.5), -6px -6px 15px rgba(66, 66, 66, 0.3);
     }
 
     /* Reset */
-    .container * {
+    .container {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -507,13 +507,15 @@
     .targets-container .target .status-unmet {
       color: var(--danger);
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .targets-container .target .target-deadline {
+    .targets-container .target .status-unmet .deadline-text {
       font-size: 0.85rem;
       color: var(--text-light);
-      margin-top: 0.3rem;
-      font-weight: 500;
+      margin-left: 0.3rem;
     }
 
     /* Notification */
@@ -554,7 +556,7 @@
     @media (max-width: 768px) {
       :root {
         --spacing-unit: 1rem;
-        --font-size-base: clamp(15px, 2vw, 17px);
+        --font-size-base: clamp(13px, 2vw, 14px);
       }
 
       body {
@@ -681,8 +683,9 @@
         font-size: 0.95rem;
       }
 
-      .targets-container .target .target-deadline {
+      .targets-container .target .status-unmet .deadline-text {
         font-size: 0.8rem;
+        margin-left: 0.2rem;
       }
 
       .notification {
@@ -729,7 +732,7 @@
       form#entry-form input,
       form#entry-form select {
         padding: 0.9rem;
-        font-size: clamp(14px, 1.8vw, 16px);
+        font-size: clamp(12px, 1.8vw, 14px);
       }
 
       form#entry-form button {
@@ -912,11 +915,11 @@
     function getWeekStartEnd(date) {
       const d = new Date(date);
       const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday start
       const start = new Date(d.setDate(diff));
       start.setHours(0, 0, 0, 0);
       const end = new Date(start);
-      end.setDate(start.getDate() + 6);
+      end.setDate(start.getDate() + 6); // Sunday end
       end.setHours(23, 59, 59, 999);
       return { start, end };
     }
@@ -990,6 +993,12 @@
         return;
       }
 
+      const now = new Date();
+      const { end: weekEnd } = getWeekStartEnd(now);
+      const { end: monthEnd } = getMonthStartEnd(now);
+      const weekEndDate = formatDate(weekEnd);
+      const monthEndDate = formatDate(monthEnd);
+
       goals.forEach(goal => {
         const targets = calculateTargets(goal);
         const weeklySaved = calculateWeeklySavings(goal);
@@ -1004,18 +1013,16 @@
           <div>
             Weekly Target: $${targets.weekly.toFixed(2)}<br>
             Saved: $${weeklySaved.toFixed(2)}<br>
-            <span class="${weeklyRemaining <= 0 ? 'status-met' : 'status-unmet'}">
-              ${weeklyRemaining <= 0 ? 'Weekly target met!' : `Need $${weeklyRemaining.toFixed(2)} more`}
+            <span class="${weeklyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${weeklyRemaining <= 0 ? 'Weekly target met' : `Weekly target remaining: $${weeklyRemaining.toFixed(2)} by ${weekEndDate}`}">
+              ${weeklyRemaining <= 0 ? 'Weekly target met!' : `Need $${weeklyRemaining.toFixed(2)} more by <span class="deadline-text">${weekEndDate}</span>`}
             </span>
-            <div class="target-deadline" aria-label="Goal deadline">Deadline: ${formatDate(goal.deadline)}</div>
           </div>
           <div>
             Monthly Target: $${targets.monthly.toFixed(2)}<br>
             Saved: $${monthlySaved.toFixed(2)}<br>
-            <span class="${monthlyRemaining <= 0 ? 'status-met' : 'status-unmet'}">
-              ${monthlyRemaining <= 0 ? 'Monthly target met!' : `Need $${monthlyRemaining.toFixed(2)} more`}
+            <span class="${monthlyRemaining <= 0 ? 'status-met' : 'status-unmet'}" aria-label="${monthlyRemaining <= 0 ? 'Monthly target met' : `Monthly target remaining: $${monthlyRemaining.toFixed(2)} by ${monthEndDate}`}">
+              ${monthlyRemaining <= 0 ? 'Monthly target met!' : `Need $${monthlyRemaining.toFixed(2)} more by <span class="deadline-text">${monthEndDate}</span>`}
             </span>
-            <div class="target-deadline" aria-label="Goal deadline">Deadline: ${formatDate(goal.deadline)}</div>
           </div>
         `;
         targetsList.appendChild(targetEl);
