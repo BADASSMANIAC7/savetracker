@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-view="desktop">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Savings Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Toggle dark mode">🌸</button>
+  <button class="view-toggle" aria-label="Toggle view mode">📱</button>
+  <h1>Savings Tracker</h1>
+  <div class="container">
+    <form id="goal-form" aria-labelledby="goal-form-label">
+      <h2 id="goal-form-label" style="display: none;">Add Savings Goal</h2>
+      <div class="form-group">
+        <input type="text" id="goal-name" placeholder=" " aria-label="Goal name" required />
+        <label for="goal-name">Goal Name</label>
+      </div>
+      <div class="form-group">
+        <input type="number" id="goal-target" min="0.01" step="0.01" placeholder=" " aria-label="Target amount" required />
+        <label for="goal-target">Target Amount</label>
+      </div>
+      <div class="form-group">
+        <input type="date" id="goal-deadline" aria-label="Goal deadline" required />
+        <label for="goal-deadline">Deadline</label>
+      </div>
+      <button type="submit">Add Goal</button>
+    </form>
+
+    <div class="goals" id="goals-container"></div>
+
+    <div class="savings-section" id="savings-section" style="display: none;">
+      <h2 id="savings-goal-name"></h2>
+      <form id="entry-form" aria-labelledby="entry-form-label">
+        <h2 id="entry-form-label" style="display: none;">Add Savings Entry</h2>
+        <div class="form-group">
+          <input type="date" id="entry-date" aria-label="Entry date" required />
+          <label for="entry-date">Date</label>
+        </div>
+        <div class="form-group">
+          <input type="number" id="entry-amount" min="0.01" step="0.01" placeholder=" " aria-label="Amount" required />
+          <label for="entry-amount">Amount</label>
+        </div>
+        <div class="form-group">
+          <select id="entry-category" aria-label="Category" required>
+            <option value="" disabled selected>Category</option>
+            <option value="Emergency Fund">Emergency Fund</option>
+            <option value="Vacation">Vacation</option>
+            <option value="Education">Education</option>
+            <option value="Retirement">Retirement</option>
+            <option value="Other">Other</option>
+          </select>
+          <label for="entry-category">Category</label>
+        </div>
+        <div class="form-group">
+          <input type="text" id="entry-notes" placeholder=" " aria-label="Notes" />
+          <label for="entry-notes">Notes</label>
+        </div>
+        <button type="submit">Add Saving</button>
+      </form>
+
+      <div class="entries-list">
+        <div class="entries-header" id="entries-toggle">Savings Entries</div>
+        <div class="entries-content" id="entries-content">
+          <div id="entries-list"></div>
+        </div>
+      </div>
+
+      <div class="charts-targets">
+        <div class="chart-container">
+          <canvas id="savings-chart" aria-label="Savings distribution by category"></canvas>
+        </div>
+        <div class="targets-container" id="targets-container" aria-live="polite">
+          <h3>Savings Targets</h3>
+          <div id="targets-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification" role="alert" aria-live="assertive"></div>
+  <script src="script.js"></script>
+</body>
+</html>
